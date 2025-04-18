@@ -1,3 +1,103 @@
+// Initialize the app
+document.addEventListener("DOMContentLoaded", function () {
+  // Hide code sections initially
+  document.getElementById("code-sections").style.display = "none";
+});
+
+// Keep track of selected languages
+const selectedLanguages = new Set();
+let activeLanguage = null;
+
+// Toggle language selection
+function toggleLanguage(language) {
+  const checkbox = document.getElementById(`lang-${language}`);
+  const codeSection = document.getElementById(`code-${language}`);
+
+  if (checkbox.checked) {
+    selectedLanguages.add(language);
+
+    // Show code sections container if at least one language is selected
+    if (selectedLanguages.size === 1) {
+      document.getElementById("code-sections").style.display = "block";
+    }
+
+    // Create tab if it doesn't exist
+    const tabsContainer = document.getElementById("code-tabs");
+    if (!document.getElementById(`tab-${language}`)) {
+      const tab = document.createElement("div");
+      tab.id = `tab-${language}`;
+      tab.className = "lang-tab";
+      tab.textContent = getLanguageDisplayName(language);
+      tab.onclick = function () {
+        activateLanguageTab(language);
+      };
+      tabsContainer.appendChild(tab);
+    }
+
+    // Activate this language if it's the first one selected
+    if (!activeLanguage) {
+      activateLanguageTab(language);
+    }
+  } else {
+    selectedLanguages.delete(language);
+
+    // Remove tab
+    const tab = document.getElementById(`tab-${language}`);
+    if (tab) {
+      tab.remove();
+    }
+
+    // Hide code section
+    codeSection.classList.remove("active");
+
+    // If this was the active language, activate another one if available
+    if (activeLanguage === language) {
+      activeLanguage = null;
+      if (selectedLanguages.size > 0) {
+        activateLanguageTab([...selectedLanguages][0]);
+      }
+    }
+
+    // Hide code sections container if no languages are selected
+    if (selectedLanguages.size === 0) {
+      document.getElementById("code-sections").style.display = "none";
+    }
+  }
+}
+
+// Activate a language tab and show its code editor
+function activateLanguageTab(language) {
+  // Deactivate all tabs and code sections
+  document.querySelectorAll(".lang-tab").forEach((tab) => {
+    tab.classList.remove("active");
+  });
+
+  document.querySelectorAll(".code-section").forEach((section) => {
+    section.classList.remove("active");
+  });
+
+  // Activate the selected tab and code section
+  const tab = document.getElementById(`tab-${language}`);
+  const codeSection = document.getElementById(`code-${language}`);
+
+  if (tab && codeSection) {
+    tab.classList.add("active");
+    codeSection.classList.add("active");
+    activeLanguage = language;
+  }
+}
+
+// Get display name for a language
+function getLanguageDisplayName(language) {
+  const displayNames = {
+    python: "Python",
+    cpp: "C++",
+    java: "Java",
+    javascript: "JavaScript",
+  };
+  return displayNames[language] || language;
+}
+
 // Format text in rich text editor
 function formatText(elementId, format) {
   const editor = document.getElementById(elementId);
@@ -108,8 +208,6 @@ function generateMarkdown() {
   const approach = htmlToMarkdown(
     document.getElementById("approach").innerHTML
   );
-  const language = document.getElementById("language").value;
-  const code = document.getElementById("code").value;
   const complexity = htmlToMarkdown(
     document.getElementById("complexity").innerHTML
   );
@@ -143,12 +241,23 @@ ${understanding}
 ## Approach 🚀
 ${approach}
 
-## Code 🖥️
-\`\`\`${language}
-${code}
-\`\`\`
+## Code 🖥️\n`;
 
-## Complexity Analysis ⏳
+  // Add code sections for each selected language
+  if (selectedLanguages.size > 0) {
+    for (const language of selectedLanguages) {
+      const codeContent = document.getElementById(
+        `code-${language}-editor`
+      ).value;
+      markdown += `\n### ${getLanguageDisplayName(
+        language
+      )}\n\`\`\`${language}\n${codeContent}\n\`\`\`\n`;
+    }
+  } else {
+    markdown += "\n*No code provided*\n";
+  }
+
+  markdown += `\n## Complexity Analysis ⏳
 **Time Complexity:** ${complexity.split("\n")[0]}  
 **Space Complexity:** ${complexity.split("\n")[1] || complexity.split("\n")[0]}
 
