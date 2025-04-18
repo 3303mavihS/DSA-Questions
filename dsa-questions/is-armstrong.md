@@ -8,7 +8,8 @@ Given an integer N, return true it is an Armstrong number otherwise return false
 
 ## Understanding 💡
 
-To check if it's an Armstrong number, you need to:- **Count the number of digits:** In 153, there are 3 digits.
+To check if it's an Armstrong number, you need to:-
+**Count the number of digits:** In 153, there are 3 digits.
 **Raise each digit to the power of the number of digits:**
 
 - 1^3=1
@@ -31,8 +32,9 @@ Let's take another example, say 121:
 
 ## Approach 🚀
 
-As We have understood the what armstrong number is we just need to do it step by step:- Handle Edge Cases
+As We have understood the what armstrong number is we just need to do it step by step:
 
+- Handle Edge Cases
 - Count the Number of Digits. And one way to do this is to repeatedly divide the number by 10 until it becomes 0, and keep a counter
 - Or, convert the number to a string and get its length.
 - Calculate the Sum of Digits Raised to the Power
