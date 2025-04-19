@@ -9,7 +9,9 @@ Given an integer N, return true it is an Armstrong number otherwise return false
 ## Understanding 💡
 
 To check if it's an Armstrong number, you need to:-
+
 **Count the number of digits:** In 153, there are 3 digits.
+
 **Raise each digit to the power of the number of digits:**
 
 - 1^3=1
@@ -17,10 +19,13 @@ To check if it's an Armstrong number, you need to:-
 - 3^3= 27
 
 **Sum these results:** 1+125+27=153
+
 **Compare the sum to the original number:** Since the sum (153) is equal to the original number (153), 153 is an Armstrong number.
 
 Let's take another example, say 121:
+
 **Count digits:** 3 digits.
+
 **Raise each digit to the power of 3:**
 
 - 1^3=1
@@ -28,6 +33,7 @@ Let's take another example, say 121:
 - 1^3=1
 
 **Sum the results:** 1+8+1=10
+
 **Compare:** 10 is not equal to 121, so 121 is not an Armstrong number.
 
 ## Approach 🚀
@@ -206,6 +212,7 @@ main();
 ## Complexity Analysis ⏳
 
 **Time Complexity:** Typically dominated by the calculation of the sum of powers. It's generally in the order of O((logN)^2) if a naive power function is used, and can be closer to O(logN⋅log(logN)) with an efficient power function.
+
 **Space Complexity:** Primarily O(1) as we use a constant amount of extra space for variables, especially if we avoid converting the number to a string for counting digits.
 
 ## Edge Cases 🔍
