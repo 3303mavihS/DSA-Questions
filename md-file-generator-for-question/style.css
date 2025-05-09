@@ -423,6 +423,38 @@ input::placeholder, textarea::placeholder {
   justify-content: flex-end;
 }
 
+.difficulty-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+}
+
+.difficulty-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Optional: Add colors to the dropdown options */
+.difficulty-select option[value="Easy"] {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.difficulty-select option[value="Medium"] {
+  color: #ffc107;
+  font-weight: 500;
+}
+
+.difficulty-select option[value="Hard"] {
+  color: #dc3545;
+  font-weight: 500;
+}
+
 /* Footer */
 footer {
   text-align: center;

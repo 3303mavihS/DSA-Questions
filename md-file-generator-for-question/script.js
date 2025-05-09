@@ -98,6 +98,20 @@ function getLanguageDisplayName(language) {
   return displayNames[language] || language;
 }
 
+// Get difficulty emoji
+function getDifficultyEmoji(difficulty) {
+  switch (difficulty) {
+    case "Easy":
+      return "🟢";
+    case "Medium":
+      return "🟡";
+    case "Hard":
+      return "🔴";
+    default:
+      return "🔢";
+  }
+}
+
 // Format text in rich text editor
 function formatText(elementId, format) {
   const editor = document.getElementById(elementId);
@@ -155,43 +169,58 @@ function isWithinEditor(selection, editor) {
 
 // Convert HTML content to Markdown
 function htmlToMarkdown(html) {
-  let markdown = html;
+  const container = document.createElement("div");
+  container.innerHTML = html;
 
-  // Handle headings
-  markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1\n\n");
-  markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1\n\n");
-
-  // Handle bold
-  markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
-  markdown = markdown.replace(/<b[^>]*>(.*?)<\/b>/gi, "**$1**");
-
-  // Handle italic
-  markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
-  markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, "*$1*");
-
-  // Handle lists
-  markdown = markdown.replace(
-    /<ul[^>]*>(.*?)<\/ul>/gi,
-    function (match, content) {
-      return content.replace(/<li[^>]*>(.*?)<\/li>/gi, "- $1\n");
+  function parseNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.nodeValue;
     }
-  );
 
-  // Handle code
-  markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, "`$1`");
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return "";
+    }
 
-  // Remove remaining HTML tags
-  markdown = markdown.replace(/<[^>]+>/g, "");
+    const tag = node.tagName.toLowerCase();
+    const children = Array.from(node.childNodes).map(parseNode).join("");
 
-  // Fix extra line breaks
-  markdown = markdown.replace(/\n{3,}/g, "\n\n");
+    switch (tag) {
+      case "h1":
+        return `# ${children}\n\n`;
+      case "h2":
+        return `## ${children}\n\n`;
+      case "strong":
+      case "b":
+        return `**${children}**`;
+      case "em":
+      case "i":
+        return `*${children}*`;
+      case "code":
+        return `\`${children}\``;
+      case "pre":
+        return `\`\`\`\n${children}\n\`\`\``;
+      case "ul":
+        return (
+          children
+            .split("\n")
+            .map((line) => (line ? `- ${line}` : ""))
+            .join("\n") + "\n"
+        );
+      case "li":
+        return `${children}\n`;
+      case "br":
+        return "  \n";
+      case "p":
+        return `${children}\n\n`;
+      case "div":
+        return `${children}`;
+      default:
+        return children;
+    }
+  }
 
-  // Decode HTML entities
-  const textarea = document.createElement("textarea");
-  textarea.innerHTML = markdown;
-  markdown = textarea.value;
-
-  return markdown.trim();
+  const result = Array.from(container.childNodes).map(parseNode).join("");
+  return result.replace(/\n{3,}/g, "\n\n").trim();
 }
 
 // Generate Markdown
@@ -199,6 +228,7 @@ function generateMarkdown() {
   const problemTitle = document.getElementById("problem-title").value.trim();
   const source = document.getElementById("source").value.trim();
   const problemUrl = document.getElementById("problem-url").value.trim();
+  const difficulty = document.getElementById("difficulty").value;
   const problemStatement = htmlToMarkdown(
     document.getElementById("problem-statement").innerHTML
   );
@@ -225,7 +255,13 @@ function generateMarkdown() {
     formattedEdgeCases = cases.map((c) => `- ✔️ ${c.trim()}`).join("\n");
   }
 
-  let markdown = `# ${problemTitle} (${source}) 🔢`;
+  // Get difficulty emoji
+  const difficultyEmoji = getDifficultyEmoji(difficulty);
+
+  let markdown = `# ${problemTitle} (${source}) ${difficultyEmoji}`;
+
+  // Add difficulty level
+  markdown += `\n\n**Difficulty:** ${difficulty}`;
 
   // Add URL if provided
   if (problemUrl) {
@@ -258,8 +294,7 @@ ${approach}
   }
 
   markdown += `\n## Complexity Analysis ⏳
-**Time Complexity:** ${complexity.split("\n")[0]}  
-**Space Complexity:** ${complexity.split("\n")[1] || complexity.split("\n")[0]}
+${complexity}
 
 ## Edge Cases 🔍
 ${formattedEdgeCases}
@@ -292,14 +327,15 @@ function copyToClipboard() {
 // Download markdown file
 function downloadMarkdown() {
   const problemTitle = document.getElementById("problem-title").value.trim();
+  const difficulty = document.getElementById("difficulty").value.toLowerCase();
   const markdown = document.getElementById("output-content").value;
 
-  // Create safe filename
+  // Create safe filename with difficulty
   const safeTitle = problemTitle
     .toLowerCase()
     .replace(/\s+/g, "_")
     .replace(/[^\w\-]/g, "");
-  const fileName = `${safeTitle}.md`;
+  const fileName = `${difficulty}_${safeTitle}.md`;
 
   // Create and download file
   const blob = new Blob([markdown], { type: "text/markdown" });
