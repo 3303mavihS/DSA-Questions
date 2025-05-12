@@ -121,6 +121,9 @@ function formatText(elementId, format) {
 
   const range = selection.getRangeAt(0);
 
+  // Make sure we're working within the editor
+  if (!isWithinEditor(selection, editor)) return;
+
   switch (format) {
     case "bold":
       document.execCommand("bold", false, null);
@@ -129,33 +132,30 @@ function formatText(elementId, format) {
       document.execCommand("italic", false, null);
       break;
     case "heading":
-      if (isWithinEditor(selection, editor)) {
-        const heading = document.createElement("h1");
-        heading.innerHTML = range.toString();
-        range.deleteContents();
-        range.insertNode(heading);
-      }
+      // Use execCommand for consistent behavior
+      const h1 = document.createElement("h1");
+      h1.innerHTML = range.toString();
+      range.deleteContents();
+      range.insertNode(h1);
+      // Set cursor position after the inserted heading
+      selection.removeAllRanges();
       break;
     case "subheading":
-      if (isWithinEditor(selection, editor)) {
-        const subheading = document.createElement("h2");
-        subheading.innerHTML = range.toString();
-        range.deleteContents();
-        range.insertNode(subheading);
-      }
+      const h2 = document.createElement("h2");
+      h2.innerHTML = range.toString();
+      range.deleteContents();
+      range.insertNode(h2);
+      selection.removeAllRanges();
       break;
     case "bullets":
-      if (isWithinEditor(selection, editor)) {
-        document.execCommand("insertUnorderedList", false, null);
-      }
+      document.execCommand("insertUnorderedList", false, null);
       break;
     case "code":
-      if (isWithinEditor(selection, editor)) {
-        const code = document.createElement("code");
-        code.innerHTML = range.toString();
-        range.deleteContents();
-        range.insertNode(code);
-      }
+      const code = document.createElement("code");
+      code.innerHTML = range.toString();
+      range.deleteContents();
+      range.insertNode(code);
+      selection.removeAllRanges();
       break;
   }
 }
@@ -167,12 +167,14 @@ function isWithinEditor(selection, editor) {
   return editor.contains(range.commonAncestorContainer);
 }
 
-// Convert HTML content to Markdown
+// Convert HTML content to Markdown - FIXED FUNCTION
 function htmlToMarkdown(html) {
+  if (!html || html.trim() === "") return "";
+
   const container = document.createElement("div");
   container.innerHTML = html;
 
-  function parseNode(node) {
+  function processNode(node, listPrefix = "") {
     if (node.nodeType === Node.TEXT_NODE) {
       return node.nodeValue;
     }
@@ -182,13 +184,24 @@ function htmlToMarkdown(html) {
     }
 
     const tag = node.tagName.toLowerCase();
-    const children = Array.from(node.childNodes).map(parseNode).join("");
+    let result = "";
+
+    // Process children with appropriate context
+    let childResults = [];
+    for (const child of node.childNodes) {
+      // For list items, pass the appropriate prefix
+      const prefix = tag === "ul" ? "- " : tag === "ol" ? "1. " : "";
+      childResults.push(processNode(child, prefix));
+    }
+    let children = childResults.join("");
 
     switch (tag) {
       case "h1":
         return `# ${children}\n\n`;
       case "h2":
         return `## ${children}\n\n`;
+      case "h3":
+        return `### ${children}\n\n`;
       case "strong":
       case "b":
         return `**${children}**`;
@@ -198,29 +211,54 @@ function htmlToMarkdown(html) {
       case "code":
         return `\`${children}\``;
       case "pre":
-        return `\`\`\`\n${children}\n\`\`\``;
+        return `\`\`\`\n${children}\n\`\`\`\n\n`;
       case "ul":
-        return (
-          children
-            .split("\n")
-            .map((line) => (line ? `- ${line}` : ""))
-            .join("\n") + "\n"
-        );
+        // Process list items separately to ensure proper formatting
+        let ulResult = "";
+        for (const child of node.childNodes) {
+          if (
+            child.nodeType === Node.ELEMENT_NODE &&
+            child.tagName.toLowerCase() === "li"
+          ) {
+            ulResult += `- ${processNode(child, "").trim()}\n`;
+          }
+        }
+        return ulResult + "\n";
+      case "ol":
+        // Process ordered list items with numbers
+        let olResult = "";
+        let counter = 1;
+        for (const child of node.childNodes) {
+          if (
+            child.nodeType === Node.ELEMENT_NODE &&
+            child.tagName.toLowerCase() === "li"
+          ) {
+            olResult += `${counter}. ${processNode(child, "").trim()}\n`;
+            counter++;
+          }
+        }
+        return olResult + "\n";
       case "li":
-        return `${children}\n`;
+        // Don't include the prefix here as it's handled by the parent list
+        return children;
       case "br":
         return "  \n";
       case "p":
         return `${children}\n\n`;
       case "div":
-        return `${children}`;
+        return `${children}\n`;
       default:
         return children;
     }
   }
 
-  const result = Array.from(container.childNodes).map(parseNode).join("");
-  return result.replace(/\n{3,}/g, "\n\n").trim();
+  const result = processNode(container);
+
+  // Clean up extra line breaks and whitespace
+  return result
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\s+$/gm, "") // Remove trailing whitespace
+    .trim();
 }
 
 // Generate Markdown
@@ -229,6 +267,8 @@ function generateMarkdown() {
   const source = document.getElementById("source").value.trim();
   const problemUrl = document.getElementById("problem-url").value.trim();
   const difficulty = document.getElementById("difficulty").value;
+
+  // Use the improved htmlToMarkdown function for all content fields
   const problemStatement = htmlToMarkdown(
     document.getElementById("problem-statement").innerHTML
   );
