@@ -1,6 +1,6 @@
 # Check if a number is Armstrong Number or not (TakeUForward) 🟢
 
-**Difficulty:** Easy
+**Difficulty :** Easy
 
 [Problem Link](https://www.geeksforgeeks.org/problems/armstrong-numbers2727/1)
 

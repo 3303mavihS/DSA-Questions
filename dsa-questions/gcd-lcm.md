@@ -1,6 +1,6 @@
 # GCD & LCM of Two Numbers (LeetCode) 🟢
 
-**Difficulty:** Easy
+**Difficulty :** Easy
 
 ## Problem Statement
 

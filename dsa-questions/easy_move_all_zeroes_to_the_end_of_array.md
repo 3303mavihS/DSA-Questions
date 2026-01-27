@@ -1,6 +1,6 @@
 # Move all zeroes to the end of array (Takeuforward, Leedcode) 🟢
 
-**Difficulty:** Easy
+**Difficulty :** Easy
 
 [Problem Link](https://leetcode.com/problems/move-zeroes/)
 

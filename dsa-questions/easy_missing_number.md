@@ -1,6 +1,6 @@
 # Missing Number (TUF, Leetcode) 🟢
 
-**Difficulty:** Easy
+**Difficulty :** Easy
 
 [Problem Link](https://leetcode.com/problems/missing-number/description/)
 

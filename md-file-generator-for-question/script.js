@@ -301,7 +301,7 @@ function generateMarkdown() {
   let markdown = `# ${problemTitle} (${source}) ${difficultyEmoji}`;
 
   // Add difficulty level
-  markdown += `\n\n**Difficulty:** ${difficulty}`;
+  markdown += `\n\n**Difficulty :** ${difficulty}`;
 
   // Add URL if provided
   if (problemUrl) {

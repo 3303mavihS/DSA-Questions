@@ -1,6 +1,6 @@
 # Frequency of the Most Frequent Element (Leetcode) 🟡
 
-**Difficulty:** Medium
+**Difficulty :** Medium
 
 [Problem Link](https://leetcode.com/problems/frequency-of-the-most-frequent-element)
 

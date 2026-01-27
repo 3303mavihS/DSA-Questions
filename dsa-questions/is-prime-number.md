@@ -1,6 +1,6 @@
 # Check for Prime Number (Take U Forward) 🟢
 
-**Difficulty:** Easy
+**Difficulty :** Easy
 
 [Problem Link](https://www.geeksforgeeks.org/problems/prime-number2314/1)
 
