@@ -29,11 +29,14 @@ Explanation:
 basically, getting the number that is missing from an array, but array can be sorted or unsorted. in case of sorted it's very simple, but in case of unsorted it may become a little tricky to get the number in a optimal way.
 
 ## Approach 🚀
-**Brute Force : **for a given range, search for each number in the array using linear search.
-**Better :**
-Use a hashmap, with all the values as 0, and for each element in array, change the value to 1 for the key. and at the end, get the key with value 0.
+**Brute Force :** for a given range, search for each number in the array using linear search.
+
+**Better :** Use a hashmap, with all the values as 0, and for each element in array, change the value to 1 for the key. and at the end, get the key with value 0.
+
 **Optimal way :**
+
 **1. total sum way :** get the sum of all the numbers in the range and get the sum of all the numbers in the array. return the difference of these two sum.
+
 **2. xor operation :** get the xor of all the numbers  in the range and get the xor of all the numbers in the array. return the xor of both of these xor.
 
 ## Code 🖥️
