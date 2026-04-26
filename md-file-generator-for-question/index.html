@@ -4,18 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DSA Markdown Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>🚀 DSA Markdown Generator 🚀</h1>
+        <h1>🚀 <span class="gradient-text">DSA Markdown Generator</span> 🚀</h1>
         <p class="subtitle">
           Create beautiful markdown files for your DSA problems
         </p>
       </header>
       <div class="playground">
-        <div class="card">
+        <div class="card" id="form-card">
           <div class="form-group">
             <label for="problem-title">Problem Title</label>
             <input type="text" id="problem-title" placeholder="e.g., Two Sum" />
@@ -47,24 +50,12 @@
           <div class="form-group">
             <label for="problem-statement">Problem Statement</label>
             <div class="toolbar" id="problem-statement-toolbar">
-              <button onclick="formatText('problem-statement', 'bold')">
-                <span class="icon">B</span>
-              </button>
-              <button onclick="formatText('problem-statement', 'italic')">
-                <span class="icon">I</span>
-              </button>
-              <button onclick="formatText('problem-statement', 'heading')">
-                H1
-              </button>
-              <button onclick="formatText('problem-statement', 'subheading')">
-                H2
-              </button>
-              <button onclick="formatText('problem-statement', 'bullets')">
-                • List
-              </button>
-              <button onclick="formatText('problem-statement', 'code')">
-                Code
-              </button>
+              <button onclick="formatText('problem-statement', 'bold')"><span class="icon">B</span></button>
+              <button onclick="formatText('problem-statement', 'italic')"><span class="icon">I</span></button>
+              <button onclick="formatText('problem-statement', 'heading')">H3</button>
+              <button onclick="formatText('problem-statement', 'bullets')">• List</button>
+              <button onclick="formatText('problem-statement', 'orderedList')">1. List</button>
+              <button onclick="formatText('problem-statement', 'code')">Code</button>
             </div>
             <div
               class="rich-text-editor"
@@ -77,24 +68,12 @@
           <div class="form-group">
             <label for="understanding">Understanding</label>
             <div class="toolbar" id="understanding-toolbar">
-              <button onclick="formatText('understanding', 'bold')">
-                <span class="icon">B</span>
-              </button>
-              <button onclick="formatText('understanding', 'italic')">
-                <span class="icon">I</span>
-              </button>
-              <button onclick="formatText('understanding', 'heading')">
-                H1
-              </button>
-              <button onclick="formatText('understanding', 'subheading')">
-                H2
-              </button>
-              <button onclick="formatText('understanding', 'bullets')">
-                • List
-              </button>
-              <button onclick="formatText('understanding', 'code')">
-                Code
-              </button>
+              <button onclick="formatText('understanding', 'bold')"><span class="icon">B</span></button>
+              <button onclick="formatText('understanding', 'italic')"><span class="icon">I</span></button>
+              <button onclick="formatText('understanding', 'heading')">H3</button>
+              <button onclick="formatText('understanding', 'bullets')">• List</button>
+              <button onclick="formatText('understanding', 'orderedList')">1. List</button>
+              <button onclick="formatText('understanding', 'code')">Code</button>
             </div>
             <div
               class="rich-text-editor"
@@ -107,17 +86,11 @@
           <div class="form-group">
             <label for="approach">Approach</label>
             <div class="toolbar" id="approach-toolbar">
-              <button onclick="formatText('approach', 'bold')">
-                <span class="icon">B</span>
-              </button>
-              <button onclick="formatText('approach', 'italic')">
-                <span class="icon">I</span>
-              </button>
-              <button onclick="formatText('approach', 'heading')">H1</button>
-              <button onclick="formatText('approach', 'subheading')">H2</button>
-              <button onclick="formatText('approach', 'bullets')">
-                • List
-              </button>
+              <button onclick="formatText('approach', 'bold')"><span class="icon">B</span></button>
+              <button onclick="formatText('approach', 'italic')"><span class="icon">I</span></button>
+              <button onclick="formatText('approach', 'heading')">H3</button>
+              <button onclick="formatText('approach', 'bullets')">• List</button>
+              <button onclick="formatText('approach', 'orderedList')">1. List</button>
               <button onclick="formatText('approach', 'code')">Code</button>
             </div>
             <div
@@ -132,152 +105,114 @@
             <label>Programming Languages</label>
             <div class="language-options">
               <div class="language-checkbox">
-                <input
-                  type="checkbox"
-                  id="lang-python"
-                  class="lang-checkbox"
-                  value="python"
-                  onchange="toggleLanguage('python')"
-                />
+                <input type="checkbox" id="lang-python" class="lang-checkbox" value="python" onchange="toggleLanguage('python')" />
                 <label for="lang-python">Python</label>
               </div>
               <div class="language-checkbox">
-                <input
-                  type="checkbox"
-                  id="lang-cpp"
-                  class="lang-checkbox"
-                  value="cpp"
-                  onchange="toggleLanguage('cpp')"
-                />
+                <input type="checkbox" id="lang-cpp" class="lang-checkbox" value="cpp" onchange="toggleLanguage('cpp')" />
                 <label for="lang-cpp">C++</label>
               </div>
               <div class="language-checkbox">
-                <input
-                  type="checkbox"
-                  id="lang-java"
-                  class="lang-checkbox"
-                  value="java"
-                  onchange="toggleLanguage('java')"
-                />
+                <input type="checkbox" id="lang-java" class="lang-checkbox" value="java" onchange="toggleLanguage('java')" />
                 <label for="lang-java">Java</label>
               </div>
               <div class="language-checkbox">
-                <input
-                  type="checkbox"
-                  id="lang-javascript"
-                  class="lang-checkbox"
-                  value="javascript"
-                  onchange="toggleLanguage('javascript')"
-                />
+                <input type="checkbox" id="lang-javascript" class="lang-checkbox" value="javascript" onchange="toggleLanguage('javascript')" />
                 <label for="lang-javascript">JavaScript</label>
+              </div>
+              <div class="language-checkbox">
+                <input type="checkbox" id="lang-typescript" class="lang-checkbox" value="typescript" onchange="toggleLanguage('typescript')" />
+                <label for="lang-typescript">TypeScript</label>
+              </div>
+              <div class="language-checkbox">
+                <input type="checkbox" id="lang-go" class="lang-checkbox" value="go" onchange="toggleLanguage('go')" />
+                <label for="lang-go">Go</label>
+              </div>
+              <div class="language-checkbox">
+                <input type="checkbox" id="lang-rust" class="lang-checkbox" value="rust" onchange="toggleLanguage('rust')" />
+                <label for="lang-rust">Rust</label>
               </div>
             </div>
           </div>
 
           <div class="form-group code-sections" id="code-sections">
-            <!-- Code sections will be added dynamically -->
-            <div class="lang-tabs" id="code-tabs">
-              <!-- Tabs will be added dynamically -->
-            </div>
-
+            <div class="lang-tabs" id="code-tabs"></div>
             <div id="code-editors">
-              <div class="code-section" id="code-python">
-                <label for="code-python-editor">Python Code</label>
-                <textarea
-                  class="code-editor"
-                  id="code-python-editor"
-                  placeholder="Paste your Python code here..."
-                ></textarea>
-              </div>
-
-              <div class="code-section" id="code-cpp">
-                <label for="code-cpp-editor">C++ Code</label>
-                <textarea
-                  class="code-editor"
-                  id="code-cpp-editor"
-                  placeholder="Paste your C++ code here..."
-                ></textarea>
-              </div>
-
-              <div class="code-section" id="code-java">
-                <label for="code-java-editor">Java Code</label>
-                <textarea
-                  class="code-editor"
-                  id="code-java-editor"
-                  placeholder="Paste your Java code here..."
-                ></textarea>
-              </div>
-
-              <div class="code-section" id="code-javascript">
-                <label for="code-javascript-editor">JavaScript Code</label>
-                <textarea
-                  class="code-editor"
-                  id="code-javascript-editor"
-                  placeholder="Paste your JavaScript code here..."
-                ></textarea>
-              </div>
+              <!-- Code sections are created dynamically by toggleLanguage() -->
             </div>
           </div>
 
           <div class="form-group">
-            <label for="complexity">Time & Space Complexity</label>
+            <label for="complexity">Time &amp; Space Complexity</label>
             <div class="toolbar" id="complexity-toolbar">
-              <button onclick="formatText('complexity', 'bold')">
-                <span class="icon">B</span>
-              </button>
-              <button onclick="formatText('complexity', 'italic')">
-                <span class="icon">I</span>
-              </button>
+              <button onclick="formatText('complexity', 'bold')"><span class="icon">B</span></button>
+              <button onclick="formatText('complexity', 'italic')"><span class="icon">I</span></button>
             </div>
             <div
               class="rich-text-editor"
               id="complexity"
               contenteditable="true"
-              placeholder="Enter time & space complexity"
+              placeholder="Enter time &amp; space complexity"
             ></div>
           </div>
 
           <div class="form-group">
             <label for="edge-cases">Edge Cases</label>
             <div class="toolbar" id="edge-cases-toolbar">
-              <button onclick="formatText('edge-cases', 'bold')">
-                <span class="icon">B</span>
-              </button>
-              <button onclick="formatText('edge-cases', 'italic')">
-                <span class="icon">I</span>
-              </button>
-              <button onclick="formatText('edge-cases', 'bullets')">
-                • List
-              </button>
+              <button onclick="formatText('edge-cases', 'bold')"><span class="icon">B</span></button>
+              <button onclick="formatText('edge-cases', 'italic')"><span class="icon">I</span></button>
+              <button onclick="formatText('edge-cases', 'bullets')">• List</button>
+              <button onclick="formatText('edge-cases', 'orderedList')">1. List</button>
             </div>
             <div
               class="rich-text-editor"
               id="edge-cases"
               contenteditable="true"
-              placeholder="List edge cases considered (use bullet points)"
+              placeholder="List edge cases considered"
             ></div>
           </div>
 
-          <button class="generate-btn" onclick="generateMarkdown()">
-            Generate Markdown
-          </button>
+          <div class="form-group">
+            <label for="notes">Notes / Key Takeaways</label>
+            <div class="toolbar" id="notes-toolbar">
+              <button onclick="formatText('notes', 'bold')"><span class="icon">B</span></button>
+              <button onclick="formatText('notes', 'italic')"><span class="icon">I</span></button>
+              <button onclick="formatText('notes', 'heading')">H3</button>
+              <button onclick="formatText('notes', 'bullets')">• List</button>
+              <button onclick="formatText('notes', 'orderedList')">1. List</button>
+              <button onclick="formatText('notes', 'code')">Code</button>
+            </div>
+            <div
+              class="rich-text-editor"
+              id="notes"
+              contenteditable="true"
+              placeholder="Key learnings, patterns, or things to remember"
+            ></div>
+          </div>
+          <div class="form-actions">
+            <button class="generate-btn" onclick="generateMarkdown()">
+                Generate Markdown
+            </button>
+            <button class="clear-btn" onclick="clearAll()">
+                Clear All
+            </button>
+          </div>
         </div>
 
         <div class="card output" id="output-section">
           <div class="output-header">
-            <h2>Generated Markdown</h2>
+            <button class="back-btn" onclick="backToForm()">← Edit Form</button>
+            <div class="view-toggle">
+              <button class="toggle-view-btn active" id="btn-preview" onclick="showPreview()">Preview</button>
+              <button class="toggle-view-btn" id="btn-code" onclick="showCode()">Markdown</button>
+            </div>
             <div class="button-group">
               <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
-              <button class="download-btn" onclick="downloadMarkdown()">
-                Download
-              </button>
+              <button class="download-btn" onclick="downloadMarkdown()">Download</button>
             </div>
           </div>
-          <textarea
-            class="output-content"
-            id="output-content"
-            readonly
-          ></textarea>
+          <div class="preview-pane" id="preview-pane"></div>
+          <textarea class="output-content" id="output-content" spellcheck="false"></textarea>
         </div>
       </div>
       <footer>
