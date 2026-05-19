@@ -398,7 +398,14 @@ button { font-family: var(--font-sans); }
    BUTTONS — PRIMARY & CLEAR
    ===================================================== */
 
-/* Stacks Generate + Clear vertically in the form */
+/* Clear button anchored to top-right of the form card */
+.form-card-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+/* Stacks Generate vertically in the form */
 .form-actions {
   display: flex;
   flex-direction: column;
@@ -429,22 +436,24 @@ button { font-family: var(--font-sans); }
 .generate-btn:active { transform: translateY(0); }
 
 .clear-btn {
-  display: block;
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
   background: transparent;
-  color: var(--error);
-  border: 1.5px solid var(--error);
+  color: var(--text-light);
+  border: 1px solid var(--border-dark);
   border-radius: var(--radius);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
 }
 
 .clear-btn:hover {
-  background: var(--error);
-  color: #fff;
+  color: var(--error);
+  border-color: var(--error);
+  background: rgba(248, 113, 113, 0.08);
 }
 
 /* =====================================================
