@@ -541,6 +541,30 @@ button { font-family: var(--font-sans); }
   transform: translateY(-1px);
 }
 
+.add-new-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: background var(--transition), transform var(--transition), opacity 0.25s ease;
+}
+
+.add-new-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.add-new-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
 .button-group {
   display: flex;
   align-items: center;

@@ -15,6 +15,11 @@ const LANGUAGE_DISPLAY_NAMES = {
   rust: "Rust",
 };
 
+// Reverse map: "C++" → "cpp", "Python" → "python", etc.
+const LANGUAGE_KEYS = Object.fromEntries(
+  Object.entries(LANGUAGE_DISPLAY_NAMES).map(([k, v]) => [v, k]),
+);
+
 function getLanguageDisplayName(lang) {
   return LANGUAGE_DISPLAY_NAMES[lang] || lang;
 }
@@ -430,6 +435,40 @@ function inlineMarkdown(text) {
   return text;
 }
 
+// Recursively parses a block of list lines at `baseIndent` depth.
+// Returns [htmlString, nextLineIndex].
+function parseListBlock(lines, startIdx, baseIndent) {
+  const items = [];
+  let i = startIdx;
+  let isOrdered = false;
+
+  while (i < lines.length) {
+    const m = lines[i].match(/^( *)(- |\d+\. )(.*)/);
+    if (!m || m[1].length < baseIndent) break;
+    if (m[1].length > baseIndent) break;
+
+    if (items.length === 0) isOrdered = /^\d/.test(m[2]);
+    const text = m[3];
+    i++;
+
+    let childHtml = "";
+    if (i < lines.length) {
+      const nm = lines[i].match(/^( *)(- |\d+\. )/);
+      if (nm && nm[1].length > baseIndent) {
+        const [child, nextI] = parseListBlock(lines, i, nm[1].length);
+        childHtml = child;
+        i = nextI;
+      }
+    }
+
+    items.push(`<li>${inlineMarkdown(text)}${childHtml}</li>`);
+  }
+
+  if (!items.length) return ["", startIdx];
+  const tag = isOrdered ? "ol" : "ul";
+  return [`<${tag}>${items.join("")}</${tag}>`, i];
+}
+
 function markdownToHtml(md) {
   if (!md.trim()) return "";
 
@@ -476,27 +515,11 @@ function markdownToHtml(md) {
       continue;
     }
 
-    // Unordered list — consume consecutive lines
-    if (/^- /.test(line)) {
-      const items = [];
-      while (i < lines.length && /^- /.test(lines[i])) {
-        items.push(`<li>${inlineMarkdown(lines[i].slice(2))}</li>`);
-        i++;
-      }
-      out.push(`<ul>${items.join("")}</ul>`);
-      continue;
-    }
-
-    // Ordered list
-    if (/^\d+\. /.test(line)) {
-      const items = [];
-      while (i < lines.length && /^\d+\. /.test(lines[i])) {
-        items.push(
-          `<li>${inlineMarkdown(lines[i].replace(/^\d+\. /, ""))}</li>`,
-        );
-        i++;
-      }
-      out.push(`<ol>${items.join("")}</ol>`);
+    // Unordered or ordered list — handles nesting recursively
+    if (/^- /.test(line) || /^\d+\. /.test(line)) {
+      const [html, nextI] = parseListBlock(lines, i, 0);
+      out.push(html);
+      i = nextI;
       continue;
     }
 
@@ -545,6 +568,7 @@ function copyToClipboard() {
     setTimeout(() => {
       btn.textContent = original;
     }, 2000);
+    document.getElementById("add-new-btn").classList.add("visible");
   });
 }
 
@@ -573,12 +597,11 @@ function downloadMarkdown() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  document.getElementById("add-new-btn").classList.add("visible");
 }
 
 // ─── Clear all ────────────────────────────────────────────────────────────────
-function clearAll() {
-  if (!confirm("Clear all fields and start fresh?")) return;
-
+function resetAll() {
   ["problem-title", "source", "problem-url"].forEach((id) => {
     const el = document.getElementById(id);
     el.value = "";
@@ -612,8 +635,19 @@ function clearAll() {
   document.getElementById("output-section").classList.remove("active");
   document.getElementById("form-card").style.display = "block";
   document.querySelector(".playground").classList.remove("preview-mode");
+  document.getElementById("add-new-btn").classList.remove("visible");
 
   localStorage.removeItem(STORAGE_KEY);
+}
+
+function clearAll() {
+  if (!confirm("Clear all fields and start fresh?")) return;
+  resetAll();
+}
+
+function addNew() {
+  resetAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // ─── LocalStorage persistence ─────────────────────────────────────────────────
@@ -690,6 +724,130 @@ function loadFromStorage() {
   }
 }
 
+// ─── Markdown → form sync ─────────────────────────────────────────────────────
+
+function parseMarkdownSections(md) {
+  const data = {
+    title: "", source: "", url: "", difficulty: "Easy",
+    problemStatement: "", understanding: "", approach: "",
+    complexity: "", edgeCases: "", notes: "",
+    languages: [], code: {},
+  };
+
+  const lines = md.split("\n");
+
+  // # Title (Source) 🟢
+  const h1 = lines.find((l) => /^# /.test(l));
+  if (h1) {
+    const rest = h1.slice(2).replace(/\s*[🟢🟡🔴🔢]\s*$/, "").trim();
+    const srcMatch = rest.match(/^(.*?)\s+\(([^)]+)\)\s*$/);
+    if (srcMatch) { data.title = srcMatch[1]; data.source = srcMatch[2]; }
+    else data.title = rest;
+  }
+
+  const diffLine = lines.find((l) => /^\*\*Difficulty:\*\*/.test(l));
+  if (diffLine) {
+    const m = diffLine.match(/\*\*Difficulty:\*\*\s*(\w+)/);
+    if (m && ["Easy", "Medium", "Hard"].includes(m[1])) data.difficulty = m[1];
+  }
+
+  const urlLine = lines.find((l) => /^\[Problem Link\]/.test(l));
+  if (urlLine) {
+    const m = urlLine.match(/\[Problem Link\]\(([^)]+)\)/);
+    if (m) data.url = m[1];
+  }
+
+  // Split body by ## headings
+  const sectionStarts = [];
+  lines.forEach((line, idx) => {
+    if (/^## /.test(line)) sectionStarts.push({ idx, heading: line });
+  });
+
+  sectionStarts.forEach(({ idx, heading }, si) => {
+    const end =
+      si + 1 < sectionStarts.length ? sectionStarts[si + 1].idx : lines.length;
+    const content = lines.slice(idx + 1, end).join("\n").trim();
+    if (/Problem Statement/.test(heading)) data.problemStatement = content;
+    else if (/Understanding/.test(heading)) data.understanding = content;
+    else if (/Approach/.test(heading)) data.approach = content;
+    else if (/Code/.test(heading)) parseCodeBlocks(content, data);
+    else if (/Complexity/.test(heading)) data.complexity = content;
+    else if (/Edge Cases/.test(heading)) data.edgeCases = content;
+    else if (/Notes/.test(heading)) data.notes = content;
+  });
+
+  return data;
+}
+
+function parseCodeBlocks(content, data) {
+  const lines = content.split("\n");
+  let currentKey = null;
+  let inFence = false;
+  let codeLines = [];
+
+  const flush = () => {
+    if (!currentKey) return;
+    data.code[currentKey] = codeLines.join("\n");
+    if (!data.languages.includes(currentKey)) data.languages.push(currentKey);
+  };
+
+  for (const line of lines) {
+    if (/^### /.test(line)) {
+      flush();
+      const displayName = line.slice(4).trim();
+      currentKey = LANGUAGE_KEYS[displayName] || displayName.toLowerCase();
+      codeLines = [];
+      inFence = false;
+    } else if (currentKey) {
+      if (/^```/.test(line)) { inFence = !inFence; }
+      else if (inFence) { codeLines.push(line); }
+    }
+  }
+  flush();
+}
+
+let syncTimer = null;
+
+function syncMarkdownToForm(md) {
+  const data = parseMarkdownSections(md);
+
+  document.getElementById("problem-title").value = data.title;
+  document.getElementById("source").value = data.source;
+  document.getElementById("problem-url").value = data.url;
+  document.getElementById("difficulty").value = data.difficulty;
+
+  [
+    ["problem-statement", data.problemStatement],
+    ["understanding", data.understanding],
+    ["approach", data.approach],
+    ["complexity", data.complexity],
+    ["edge-cases", data.edgeCases],
+    ["notes", data.notes],
+  ].forEach(([id, mdContent]) => {
+    document.getElementById(id).innerHTML = markdownToHtml(mdContent || "");
+  });
+
+  // Remove languages no longer present in the markdown
+  [...selectedLanguages].forEach((lang) => {
+    if (!data.languages.includes(lang)) {
+      const cb = document.getElementById(`lang-${lang}`);
+      if (cb) { cb.checked = false; toggleLanguage(lang); }
+    }
+  });
+
+  // Add / update languages found in the markdown
+  data.languages.forEach((lang) => {
+    if (!selectedLanguages.has(lang)) {
+      const cb = document.getElementById(`lang-${lang}`);
+      if (cb) { cb.checked = true; toggleLanguage(lang); }
+    }
+    const editor = document.getElementById(`code-${lang}-editor`);
+    if (editor) editor.value = data.code[lang] || "";
+  });
+
+  saveToStorage();
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("code-sections").style.display = "none";
@@ -716,6 +874,11 @@ document.addEventListener("DOMContentLoaded", () => {
     editor.addEventListener("blur", () => {
       if (editor.textContent.trim() === "") editor.innerHTML = "";
     });
+  });
+
+  document.getElementById("output-content").addEventListener("input", (e) => {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => syncMarkdownToForm(e.target.value), 300);
   });
 
   loadFromStorage();
