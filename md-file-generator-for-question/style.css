@@ -550,13 +550,13 @@ button { font-family: var(--font-sans); }
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  display: none;
+  display:none;
   pointer-events: none;
   transition: background var(--transition), transform var(--transition), opacity 0.25s ease;
 }
 
 .add-new-btn.visible {
-  display: block;
+  display:block;
   pointer-events: auto;
 }
 
