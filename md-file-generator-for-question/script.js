@@ -583,6 +583,8 @@ function downloadMarkdown() {
   const difficulty = document.getElementById("difficulty").value.toLowerCase();
   const safeTitle = problemTitle
     ? problemTitle
+        .replace(/\s*\([^)]*\)\s*/g, " ")
+        .trim()
         .toLowerCase()
         .replace(/\s+/g, "_")
         .replace(/[^\w\-]/g, "")
