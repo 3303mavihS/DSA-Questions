@@ -31,7 +31,7 @@ Explanation: The reverse pairs are:
 ```
 Constraints:
 ```
-1 <= nums.length <= 5 * 104
+1 <= nums.length <= 5 * 10^4
 -231 <= nums[i] <= 231 - 1
 ```
 
