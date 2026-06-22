@@ -588,6 +588,7 @@ function downloadMarkdown() {
         .toLowerCase()
         .replace(/\s+/g, "_")
         .replace(/[^\w\-]/g, "")
+        .replace(/^_+|_+$/g, "")
     : "untitled";
 
   const blob = new Blob([markdown], { type: "text/markdown" });
@@ -741,7 +742,7 @@ function parseMarkdownSections(md) {
   // # Title (Source) 🟢
   const h1 = lines.find((l) => /^# /.test(l));
   if (h1) {
-    const rest = h1.slice(2).replace(/\s*[🟢🟡🔴🔢]\s*$/, "").trim();
+    const rest = h1.slice(2).replace(/\s*[🟢🟡🔴🔢]\s*$/u, "").trim();
     const srcMatch = rest.match(/^(.*?)\s+\(([^)]+)\)\s*$/);
     if (srcMatch) { data.title = srcMatch[1]; data.source = srcMatch[2]; }
     else data.title = rest;
